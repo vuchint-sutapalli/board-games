@@ -22,7 +22,15 @@ export function useMultiplayerGame(gameId, opponent) {
 	useEffect(() => {
 		if (opponent !== "human") return;
 
-		ws.current = new WebSocket("ws://localhost:8080");
+		const wsUrl = process.env.REACT_APP_WEBSOCKET_URL;
+		if (!wsUrl) {
+			console.error(
+				"WebSocket URL not defined. Set REACT_APP_WEBSOCKET_URL in .env file"
+			);
+			return;
+		}
+
+		ws.current = new WebSocket(wsUrl);
 
 		ws.current.onopen = () => {
 			console.log("WebSocket connected");
