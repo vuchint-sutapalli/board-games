@@ -17,7 +17,7 @@ const defaultSnakes: [number, number][] = [
 	[66, 45],
 	[89, 53],
 	[95, 77],
-	[98, 41],
+	[99, 41],
 ];
 
 export class SnakeLadderLogic implements IGameLogic {
