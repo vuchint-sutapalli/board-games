@@ -22,10 +22,10 @@ export function useMultiplayerGame(gameId, opponent) {
 	useEffect(() => {
 		if (opponent !== "human") return;
 
-		const wsUrl = process.env.REACT_APP_WEBSOCKET_URL;
+		const wsUrl = import.meta.env.VITE_WEBSOCKET_URL;
 		if (!wsUrl) {
 			console.error(
-				"WebSocket URL not defined. Set REACT_APP_WEBSOCKET_URL in .env file"
+				"WebSocket URL not defined. Set VITE_WEBSOCKET_URL in .env file"
 			);
 			return;
 		}
