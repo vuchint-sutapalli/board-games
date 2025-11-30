@@ -43,7 +43,7 @@ export class Game {
 
 		let moveResult;
 		try {
-			moveResult = this.gameLogic.makeMove(move.index, playerIdentifier);
+			moveResult = this.gameLogic.makeMove(move, playerIdentifier);
 		} catch (error) {
 			// If the move is invalid, the logic will throw an error.
 			console.error("Invalid move:", error);
@@ -100,14 +100,16 @@ export class Game {
 		if (!(this.player2 instanceof AIPlayer) || this.turn !== "P2") {
 			return;
 		}
-		console.log("ai is trying to make a move");
+		console.log("aiiii");
 
 		const aiMove = this.player2.findBestMove(this.gameLogic.getBoard());
+		console.log("ai is trying to make a move", aiMove);
+
 		if (aiMove === null) return; // No available moves
 
 		console.log(`best move found, ${aiMove}`);
 
-		const moveResult = this.gameLogic.makeMove(aiMove, "P2");
+		const moveResult = this.gameLogic.makeMove({ index: aiMove }, "P2");
 		const nextTurnIdentifier = "P1"; // After AI moves, it's always P1's turn
 
 		this.broadcast({

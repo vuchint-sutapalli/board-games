@@ -26,13 +26,13 @@ export class TicTacToeLogic implements IGameLogic {
 		};
 	}
 
-	makeMove(move: number, player: "P1" | "P2"): MoveResult {
+	makeMove(move: { index: number }, player: "P1" | "P2"): MoveResult {
 		console.log(move, player, this.cells);
 
-		if (this.cells[move] !== null) {
+		if (this.cells[move.index] !== null) {
 			throw new Error("Cell is already occupied");
 		}
-		this.cells[move] = player;
+		this.cells[move.index] = player;
 		const winnerResult = this.winner();
 
 		return {

@@ -36,7 +36,7 @@ export default class AIPlayer {
 			let best = -Infinity;
 			for (const move of board.availableMoves!()) {
 				const copy = board.clone!();
-				copy.makeMove(move, this.mark);
+				copy.makeMove({ index: move }, this.mark);
 				const val = this.minimax(copy, depth - 1, false, alpha, beta);
 				best = Math.max(best, val);
 				alpha = Math.max(alpha, best);
@@ -47,7 +47,7 @@ export default class AIPlayer {
 			let best = Infinity;
 			for (const move of board.availableMoves!()) {
 				const copy = board.clone!();
-				copy.makeMove(move, this.opponent);
+				copy.makeMove({ index: move }, this.opponent);
 				const val = this.minimax(copy, depth - 1, true, alpha, beta);
 				best = Math.min(best, val);
 				beta = Math.min(beta, best);
@@ -69,7 +69,7 @@ export default class AIPlayer {
 		for (const move of availableMoves) {
 			// Create a copy of the board to simulate the move
 			const copy = board.clone!();
-			copy.makeMove(move, this.mark);
+			copy.makeMove({ index: move }, this.mark);
 
 			// Calculate the value of the board state after this move
 			const moveVal = this.minimax(copy, depth - 1, false, -Infinity, Infinity);

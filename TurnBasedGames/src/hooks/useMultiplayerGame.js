@@ -81,12 +81,28 @@ export function useMultiplayerGame(gameId, opponent) {
 					console.log("game over", msg.payload.winner, playerRef.current);
 
 					setWinner(msg.payload.winner);
-					const winMsg =
-						msg.payload.winner === playerRef.current ? "You won!" : "You lost.";
-					showSnackbar(
-						`Game Over! ${winMsg}`,
-						msg.payload.winner === playerRef.current ? "success" : "error"
-					);
+
+					let winMsg;
+					let snackbarType;
+
+					if (msg.payload.winner === playerRef.current) {
+						winMsg = "You won!";
+						snackbarType = "success";
+					} else if (msg.payload.winner === "OPPONENT_DISCONNECTED") {
+						winMsg = "Opponent disconnected. You win!";
+						snackbarType = "success";
+					} else if (
+						msg.payload.winner === null ||
+						msg.payload.winner === undefined
+					) {
+						winMsg = "It's a draw!";
+						snackbarType = "info";
+					} else {
+						winMsg = "You lost.";
+						snackbarType = "error";
+					}
+
+					showSnackbar(`Game Over! ${winMsg}`, snackbarType);
 					break;
 				case "ERROR":
 					console.error("Server Error:", msg.payload.message);

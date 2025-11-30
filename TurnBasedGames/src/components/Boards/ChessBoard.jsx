@@ -51,6 +51,8 @@ export default function ChessBoard({ fen, onMove, player, isMyTurn }) {
 			// Check if the new click is a valid move for the selected piece
 			const isMoveValid = validMoves.some((move) => move.to === square);
 
+			console.log("checking move validity", isMoveValid);
+
 			if (isMoveValid) {
 				// Make the move
 				onMove({ from: selectedSquare, to: square });
