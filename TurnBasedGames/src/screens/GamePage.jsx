@@ -65,6 +65,7 @@ export default function GamePage() {
 
 	// --- Game-Specific Actions ---
 	const handleDiceRoll = () => {
+		if (winner) return; // Don't allow rolling if the game is over.
 		setIsRolling(true);
 		makeMove({}); // Send an empty move object to signal a roll
 	};

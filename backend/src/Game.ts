@@ -144,4 +144,14 @@ export class Game {
 	private getPlayerIdentifier(player: WebSocket): "P1" | "P2" {
 		return player === this.player1 ? "P1" : "P2"; // Assumes player2 is never the one sending a WebSocket message in an AI game
 	}
+
+	public isGameOver(): boolean {
+		return this.gameLogic.isGameOver();
+	}
+
+	public forceWinner(player: "P1" | "P2"): void {
+		if (this.gameLogic.forceWinner) {
+			this.gameLogic.forceWinner(player);
+		}
+	}
 }

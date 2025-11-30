@@ -51,9 +51,10 @@ export class SnakeLadderLogic implements IGameLogic {
 		// If the new position overshoots the board, the player does not move.
 		if (newPosition > this.size) {
 			return {
-				payload: { board: this.cells, roll },
-				isTurnOver: true,
-				isGameOver: false, // No winner property when there's no winner
+				payload: { board: this.cells, roll, player },
+				// The turn is over UNLESS the roll was a 6, which grants an extra turn.
+				isTurnOver: roll !== 6,
+				isGameOver: false,
 			};
 		}
 

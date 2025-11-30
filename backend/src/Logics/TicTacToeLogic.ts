@@ -13,9 +13,11 @@ const WINNING_COMBINATIONS = [
 
 export class TicTacToeLogic implements IGameLogic {
 	public cells: (null | "P1" | "P2")[];
+	private _winner: "P1" | "P2" | null;
 
 	constructor(boardState: (null | "P1" | "P2")[] | null = null) {
 		this.cells = boardState ?? Array(9).fill(null);
+		this._winner = null;
 	}
 
 	getInitialPayload(player: "P1" | "P2") {
@@ -46,10 +48,14 @@ export class TicTacToeLogic implements IGameLogic {
 	}
 
 	isGameOver(): boolean {
-		return !this.cells.includes(null) || !!this.winner();
+		return !this.cells.includes(null) || !!this.winner() || !!this._winner;
 	}
 
 	winner(): { mark: "P1" | "P2" } | null {
+		if (this._winner) {
+			return { mark: this._winner };
+		}
+
 		for (const combination of WINNING_COMBINATIONS) {
 			const [a, b, c] = combination;
 			if (
@@ -84,5 +90,9 @@ export class TicTacToeLogic implements IGameLogic {
 	clone(): IGameLogic {
 		// Create a new instance with a copy of the current cells array
 		return new TicTacToeLogic([...this.cells]);
+	}
+
+	forceWinner(player: "P1" | "P2"): void {
+		this._winner = player;
 	}
 }

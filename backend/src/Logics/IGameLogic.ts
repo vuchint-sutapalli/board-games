@@ -15,4 +15,5 @@ export interface IGameLogic {
 	availableMoves?(): number[];
 	clone?(): IGameLogic;
 	winner?(): { mark: "P1" | "P2" } | null;
+	forceWinner?(player: "P1" | "P2"): void;
 }

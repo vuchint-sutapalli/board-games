@@ -5,7 +5,7 @@ import type { IGameLogic } from "./Logics/IGameLogic.js";
 import { ChessLogic } from "./Logics/ChessLogic.js";
 import { SnakeLadderLogic } from "./Logics/SnakeLadderLogic.js";
 import { TicTacToeLogic } from "./Logics/TicTacToeLogic.js";
-// Define types for incoming messages
+import { PLAYER_LEFT } from "./messages.js";
 interface InitGameMessage {
 	type: typeof INIT_GAME;
 	payload: {
@@ -50,12 +50,30 @@ export class GameManager {
 			const otherPlayer = game.player1 === user ? game.player2 : game.player1;
 			// Only send a message if the other player is a human connected via WebSocket
 			if (otherPlayer instanceof WebSocket) {
-				otherPlayer.send(
-					JSON.stringify({
-						type: GAME_OVER,
-						payload: { winner: "OPPONENT_DISCONNECTED" },
-					})
-				);
+				if (game.isGameOver()) {
+					// If the game is already over, just notify that the opponent left.
+					otherPlayer.send(
+						JSON.stringify({
+							type: PLAYER_LEFT,
+							payload: { message: "Your opponent has left." },
+						})
+					);
+				} else {
+					// If the game is in progress, end it and declare the other player the winner.
+					const winnerIdentifier = game.player1 === otherPlayer ? "P1" : "P2";
+					// Mark the game object with the winner for consistency.
+					game.forceWinner(winnerIdentifier);
+
+					otherPlayer.send(
+						JSON.stringify({
+							type: GAME_OVER,
+							payload: {
+								winner: winnerIdentifier,
+								reason: "OPPONENT_DISCONNECTED",
+							},
+						})
+					);
+				}
 			}
 			this.games = this.games.filter((g) => g !== game);
 		}

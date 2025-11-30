@@ -88,4 +88,8 @@ export class ChainReactionLogic implements IGameLogic {
 	getBoard(): { P1: number; P2: number } {
 		return this.playerPositions;
 	}
+
+	forceWinner(player: "P1" | "P2"): void {
+		this._winner = player;
+	}
 }

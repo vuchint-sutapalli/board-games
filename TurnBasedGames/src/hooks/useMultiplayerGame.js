@@ -9,6 +9,7 @@ export function useMultiplayerGame(gameId, opponent) {
 	const [boardState, setBoardState] = useState(null); // Generic board state
 	const [gameConfig, setGameConfig] = useState(null); // For game-specific config like snakes/ladders
 	const [winner, setWinner] = useState(null);
+	const [isOpponentConnected, setIsOpponentConnected] = useState(true);
 	const [lastMove, setLastMove] = useState(null); // Holds the payload of the last MOVE
 	const ws = useRef(null);
 	const { showSnackbar } = useSnackbar();
@@ -58,6 +59,7 @@ export function useMultiplayerGame(gameId, opponent) {
 					setBoardState(msg.payload.board);
 					setTurn("P1");
 					setGameConfig(msg.payload); // Store the whole payload for specific configs
+					setIsOpponentConnected(true); // Game only starts when opponent is present (human or bot).
 					showSnackbar(
 						"Game started! You are " + msg.payload.player,
 						"success"
@@ -87,9 +89,9 @@ export function useMultiplayerGame(gameId, opponent) {
 
 					if (msg.payload.winner === playerRef.current) {
 						winMsg = "You won!";
-						snackbarType = "success";
-					} else if (msg.payload.winner === "OPPONENT_DISCONNECTED") {
-						winMsg = "Opponent disconnected. You win!";
+						if (msg.payload.reason === "OPPONENT_DISCONNECTED") {
+							winMsg = "Opponent disconnected. You win!";
+						}
 						snackbarType = "success";
 					} else if (
 						msg.payload.winner === null ||
@@ -107,6 +109,11 @@ export function useMultiplayerGame(gameId, opponent) {
 				case "ERROR":
 					console.error("Server Error:", msg.payload.message);
 					showSnackbar(msg.payload.message, "error");
+					break;
+				case "PLAYER_LEFT":
+					console.log("Opponent left the game session.");
+					setIsOpponentConnected(false);
+					showSnackbar("Your opponent has left.", "info");
 					break;
 			}
 		};
@@ -148,6 +155,7 @@ export function useMultiplayerGame(gameId, opponent) {
 		gameConfig,
 		winner,
 		lastMove,
+		isOpponentConnected,
 		makeMove,
 	};
 }
