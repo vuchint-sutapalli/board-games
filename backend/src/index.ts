@@ -19,21 +19,22 @@ const wss = new WebSocketServer({ server });
 const gameManager = new GameManager();
 
 wss.on("connection", function connection(ws) {
+	console.log("connection established");
 	gameManager.addUser(ws);
 
 	ws.on("error", console.error);
 
-	ws.on("message", function message(data) {
-		console.log("received: %s", data);
-	});
+	// ws.on("message", function message(data) {
+	// 	console.log("received: %s", data);
+	// });
 
-	ws.send("something");
+	// ws.send("something");
 
 	ws.on("close", function close() {
+		console.log("connection closed");
 		gameManager.removeUser(ws);
 	});
 });
-
 // Start listening
 server.listen(port, () => {
 	console.log(`🚀 Server is listening on port ${port}`);

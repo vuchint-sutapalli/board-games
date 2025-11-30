@@ -10,6 +10,7 @@ interface InitGameMessage {
 	type: typeof INIT_GAME;
 	payload: {
 		game: string;
+		opponent?: "human" | "bot";
 	};
 }
 
@@ -47,9 +48,15 @@ export class GameManager {
 		if (game) {
 			// Notify the other player that their opponent disconnected
 			const otherPlayer = game.player1 === user ? game.player2 : game.player1;
-			otherPlayer.send(
-				JSON.stringify({ type: GAME_OVER, payload: { winner: "draw" } })
-			);
+			// Only send a message if the other player is a human connected via WebSocket
+			if (otherPlayer instanceof WebSocket) {
+				otherPlayer.send(
+					JSON.stringify({
+						type: GAME_OVER,
+						payload: { winner: "OPPONENT_DISCONNECTED" },
+					})
+				);
+			}
 			this.games = this.games.filter((g) => g !== game);
 		}
 	}
@@ -67,31 +74,67 @@ export class GameManager {
 			switch (message.type) {
 				case INIT_GAME: {
 					const gameType = message.payload.game;
+					const opponentType = message.payload.opponent ?? "human";
 					if (!gameType) return;
 
-					const pendingUser = this.pendingUsers.get(gameType);
+					let gameLogic: IGameLogic;
+					// Decide which game logic to use based on the type
+					if (gameType === "chess") {
+						gameLogic = new ChessLogic();
+					} else if (gameType === "snake-ladder") {
+						gameLogic = new SnakeLadderLogic();
+					} else if (gameType === "tictactoe") {
+						gameLogic = new TicTacToeLogic();
+					} else {
+						console.error(`Unsupported game type: ${gameType}`);
+						return;
+					}
 
-					if (pendingUser) {
-						let gameLogic: IGameLogic;
+					if (opponentType === "bot") {
+						// If the user wants to play against a bot, create the game immediately.
+						// The Game constructor will handle creating the AIPlayer.
+						if (gameType === "tictactoe") {
+							const game = new Game(socket, null, gameLogic);
+							console.log(
+								"createing a new tic tac toe game with bot as opponent"
+							);
 
-						// Decide which game logic to use based on the type
-						if (gameType === "chess") {
-							gameLogic = new ChessLogic();
-						} else if (gameType === "snake-ladder") {
-							gameLogic = new SnakeLadderLogic();
-						} else if (gameType === "tictactoe") {
-							gameLogic = new TicTacToeLogic();
+							this.games.push(game);
+							// Manually send the INIT_GAME message now that the game is created
+							socket.send(
+								JSON.stringify({
+									type: INIT_GAME,
+									payload: gameLogic.getInitialPayload("P1"),
+								})
+							);
 						} else {
-							// Here you would add: else if (gameType === 'tictactoe') { gameLogic = new TicTacToeLogic(); }
-							console.error(`Unsupported game type: ${gameType}`);
+							// You can add AI support for other games here later
+							console.error(`Bot not implemented for ${gameType}`);
 							return;
 						}
-						// if a user is pending, start a new game
-						const game = new Game(pendingUser, socket, gameLogic);
-						this.games.push(game);
-						this.pendingUsers.set(gameType, null);
 					} else {
-						this.pendingUsers.set(gameType, socket);
+						// Handle human vs human matchmaking
+						const pendingUser = this.pendingUsers.get(gameType);
+						if (pendingUser) {
+							const game = new Game(pendingUser, socket, gameLogic);
+							this.games.push(game);
+							// Notify both players that the game has started
+							pendingUser.send(
+								JSON.stringify({
+									type: INIT_GAME,
+									payload: gameLogic.getInitialPayload("P1"),
+								})
+							);
+							socket.send(
+								JSON.stringify({
+									type: INIT_GAME,
+									payload: gameLogic.getInitialPayload("P2"),
+								})
+							);
+							this.pendingUsers.set(gameType, null);
+						} else {
+							this.pendingUsers.set(gameType, socket);
+						}
 					}
 					break;
 				}

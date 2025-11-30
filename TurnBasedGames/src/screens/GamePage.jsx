@@ -69,10 +69,6 @@ export default function GamePage() {
 		makeMove({}); // Send an empty move object to signal a roll
 	};
 
-	if (opponent === "bot") {
-		return <div>Playing against a bot is not implemented yet.</div>;
-	}
-
 	if (!gameConfig) {
 		return (
 			<div className="w-screen flex items-center justify-center min-h-screen bg-slate-900 text-white p-8">
@@ -82,7 +78,9 @@ export default function GamePage() {
 						{gameType.replace("-", " ")}
 					</h2>
 					<p className="text-xl text-gray-300">
-						{message || "Waiting for opponent to join..."}
+						{opponent === "bot"
+							? "Starting game..."
+							: message || "Waiting for opponent to join..."}
 					</p>
 				</div>
 			</div>

@@ -1,1 +1,1 @@
-{"root":["./src/game.ts","./src/gamemanager.ts","./src/index.ts","./src/messages.ts","./src/logics/chainreactionlogic.ts","./src/logics/chesslogic.ts","./src/logics/igamelogic.ts","./src/logics/snakeladderlogic.ts","./src/logics/tictactoelogic.ts"],"version":"5.9.3"}
+{"root":["./src/aiplayer.ts","./src/game.ts","./src/gamemanager.ts","./src/index.ts","./src/messages.ts","./src/logics/chainreactionlogic.ts","./src/logics/chesslogic.ts","./src/logics/igamelogic.ts","./src/logics/snakeladderlogic.ts","./src/logics/tictactoelogic.ts"],"version":"5.9.3"}

@@ -10,11 +10,11 @@ const EXTRA_TURN_SQUARES = [5, 12, 18];
  */
 export class ChainReactionLogic implements IGameLogic {
 	private playerPositions: { P1: number; P2: number };
-	private winner: "P1" | "P2" | undefined;
+	private _winner: "P1" | "P2" | undefined;
 
 	constructor() {
 		this.playerPositions = { P1: 0, P2: 0 };
-		this.winner = undefined;
+		this._winner = undefined;
 	}
 
 	getInitialPayload(player: "P1" | "P2"): object {
@@ -27,7 +27,7 @@ export class ChainReactionLogic implements IGameLogic {
 	}
 
 	makeMove(move: any, player: "P1" | "P2"): MoveResult {
-		if (this.winner) {
+		if (this._winner) {
 			throw new Error("Game is already over.");
 		}
 
@@ -38,7 +38,7 @@ export class ChainReactionLogic implements IGameLogic {
 		let isGameOver = false;
 		if (newPosition >= BOARD_SIZE) {
 			newPosition = BOARD_SIZE;
-			this.winner = player;
+			this._winner = player;
 			isGameOver = true;
 		}
 
@@ -62,18 +62,30 @@ export class ChainReactionLogic implements IGameLogic {
 			isGameOver,
 		};
 
-		if (this.winner) {
-			result.winner = this.winner;
+		if (this._winner) {
+			result.winner = this._winner;
 		}
 
 		return result;
 	}
 
 	isGameOver(): boolean {
-		return !!this.winner;
+		return !!this._winner;
 	}
 
+	winner(): { mark: "P1" | "P2" } | null {
+		if (this._winner) {
+			return { mark: this._winner };
+		}
+		return null;
+	}
+
+	// This method is not part of the interface, but we'll leave it in case other parts of the code use it.
 	getWinner(): "P1" | "P2" | undefined {
-		return this.winner;
+		return this._winner;
+	}
+
+	getBoard(): { P1: number; P2: number } {
+		return this.playerPositions;
 	}
 }

@@ -20,7 +20,7 @@ export function useMultiplayerGame(gameId, opponent) {
 	}, [player]);
 
 	useEffect(() => {
-		if (opponent !== "human") return;
+		// if (opponent !== "human") return;
 
 		const wsUrl = import.meta.env.VITE_WEBSOCKET_URL;
 		if (!wsUrl) {
@@ -37,7 +37,7 @@ export function useMultiplayerGame(gameId, opponent) {
 			ws.current.send(
 				JSON.stringify({
 					type: "INIT_GAME",
-					payload: { game: gameId },
+					payload: { game: gameId, opponent },
 				})
 			);
 		};

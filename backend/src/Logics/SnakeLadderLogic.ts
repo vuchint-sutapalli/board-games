@@ -116,6 +116,10 @@ export class SnakeLadderLogic implements IGameLogic {
 		return result;
 	}
 
+	getBoard(): ("P1" | "P2")[][] {
+		return this.cells;
+	}
+
 	isGameOver() {
 		// The game is over when someone reaches the last cell
 		return !!this.getWinner();

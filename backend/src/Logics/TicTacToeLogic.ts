@@ -1,71 +1,88 @@
 import type { IGameLogic, MoveResult } from "./IGameLogic.js";
 
+const WINNING_COMBINATIONS = [
+	[0, 1, 2],
+	[3, 4, 5],
+	[6, 7, 8],
+	[0, 3, 6],
+	[1, 4, 7],
+	[2, 5, 8],
+	[0, 4, 8],
+	[2, 4, 6],
+] as const;
+
 export class TicTacToeLogic implements IGameLogic {
-	private cells: (string | null)[];
+	public cells: (null | "P1" | "P2")[];
 
-	constructor(cells: (string | null)[] | null = null) {
-		// If cells are provided, use them; otherwise, create a new empty board.
-		this.cells = cells ? [...cells] : Array(9).fill(null);
+	constructor(boardState: (null | "P1" | "P2")[] | null = null) {
+		this.cells = boardState ?? Array(9).fill(null);
 	}
 
-	makeMove(move: any, player: "P1" | "P2"): MoveResult {
-		const { index } = move; // Expects move to be { index: number }
-		if (this.cells[index]) {
-			throw new Error("Cell already taken");
-		}
-		this.cells[index] = player;
-
-		const isGameOver = this.isGameOver();
-		const winner = this.getWinner();
-
-		const result: MoveResult = {
-			payload: { board: this.getBoardState() },
-			isTurnOver: true, // A turn is always over after one move in Tic Tac Toe
-			isGameOver,
+	getInitialPayload(player: "P1" | "P2") {
+		return {
+			player,
+			board: this.cells,
+			game: "tic-tac-toe",
 		};
+	}
 
-		if (winner) {
-			result.winner = winner;
+	makeMove(move: number, player: "P1" | "P2"): MoveResult {
+		console.log(move, player, this.cells);
+
+		if (this.cells[move] !== null) {
+			throw new Error("Cell is already occupied");
 		}
+		this.cells[move] = player;
+		const winnerResult = this.winner();
 
-		return result;
+		return {
+			payload: {
+				board: this.cells,
+			},
+			isTurnOver: true, // In Tic-Tac-Toe, a move always ends the turn.
+			isGameOver: !!winnerResult || this.isGameOver(),
+			winner: winnerResult ? winnerResult.mark : null,
+		};
 	}
 
-	isGameOver() {
-		return !!this.getWinner() || this.cells.every((cell) => cell !== null);
+	isGameOver(): boolean {
+		return !this.cells.includes(null) || !!this.winner();
 	}
 
-	getWinner() {
-		const lines: [number, number, number][] = [
-			[0, 1, 2],
-			[3, 4, 5],
-			[6, 7, 8],
-			[0, 3, 6],
-			[1, 4, 7],
-			[2, 5, 8],
-			[0, 4, 8],
-			[2, 4, 6],
-		];
-		for (const [a, b, c] of lines) {
+	winner(): { mark: "P1" | "P2" } | null {
+		for (const combination of WINNING_COMBINATIONS) {
+			const [a, b, c] = combination;
 			if (
 				this.cells[a] &&
 				this.cells[a] === this.cells[b] &&
 				this.cells[a] === this.cells[c]
 			) {
-				return this.cells[a] as "P1" | "P2";
+				return { mark: this.cells[a] as "P1" | "P2" };
 			}
 		}
-		return undefined;
+		return null;
 	}
 
-	getBoardState(): (string | null)[] {
-		return [...this.cells];
+	availableMoves(): number[] {
+		return this.cells
+			.map((cell, index) => (cell === null ? index : null))
+			.filter((index) => index !== null) as number[];
 	}
 
-	getInitialPayload(player: "P1" | "P2") {
-		return {
-			player: player,
-			board: this.getBoardState(),
-		};
+	/**
+	 * Returns the logic instance itself, which contains the board state
+	 * and methods needed by the AI.
+	 */
+	getBoard(): IGameLogic {
+		return this;
+	}
+
+	/**
+	 * Creates a deep copy of the current game logic state.
+	 * The AI uses this to simulate moves without affecting the real game.
+	 */
+	clone(): IGameLogic {
+		// Create a new instance with a copy of the current cells array
+		return new TicTacToeLogic([...this.cells]);
 	}
 }

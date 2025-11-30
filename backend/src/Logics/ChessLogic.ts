@@ -64,4 +64,8 @@ export class ChessLogic implements IGameLogic {
 			player: player,
 		};
 	}
+
+	getBoard(): Chess {
+		return this.board;
+	}
 }
