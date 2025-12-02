@@ -13,6 +13,7 @@ export default function TicTacToeBoard({ board, onCellClick }) {
 				const mark = PLAYER_TO_MARK_MAP[player]; // 'X', 'O', or undefined
 				return (
 					<button
+						data-testid={`cell-${index}`}
 						key={index}
 						onClick={() => onCellClick(index)}
 						className="bg-slate-800 rounded-lg flex items-center justify-center text-lg md:text-4xl font-bold text-white hover:bg-slate-600 disabled:hover:bg-slate-800"
